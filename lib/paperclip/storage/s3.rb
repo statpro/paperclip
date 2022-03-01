@@ -267,7 +267,11 @@ module Paperclip
 
       def obtain_s3_instance_for(options)
         instances = (Thread.current[:paperclip_s3_instances] ||= {})
-        instances[options] ||= ::Aws::S3::Resource.new(options)
+        if options[:credentials]
+          instances[options] ||= ::Aws::S3::Resource.new(::Aws::S3::Client.new(:region => options[:region], :credentials => options[:credentials]))
+        else
+          instances[options] ||= ::Aws::S3::Resource.new(options)
+        end
       end
 
       def s3_bucket
